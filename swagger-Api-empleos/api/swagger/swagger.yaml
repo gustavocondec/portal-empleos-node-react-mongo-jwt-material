@@ -1,0 +1,446 @@
+swagger: "2.0"
+info:
+  version: "0.0.1"
+  title: Api empleos
+# during dev, should point to your local machine
+host: localhost:4000
+# basePath prefixes all resource paths 
+basePath: /
+# 
+schemes:
+  # tip: remove http to make production-grade
+  - http
+  - https
+# format of bodies a client can send (Content-Type)
+consumes:
+  - application/json
+# format of the responses to the client (Accepts)
+produces:
+  - application/json
+responses:
+  default:
+    description: Error
+    schema:
+      $ref: "#/definitions/ErrorResponse"
+  RespuestaModel:
+    description: Modelo de respuesta
+    schema:
+      $ref: "#/definitions/RespuestaModel"
+paths:
+  /empleos:
+    get:
+      description: Retorna una lista de empleos. No requiere token
+      parameters:
+        - in: query
+          name: inicio
+          description: el inicio de la lista
+          required: false
+          type: string
+        - in: query
+          name: fin
+          description: el fin de la lista
+          required: false
+          type: string
+      responses:
+        default:
+          $ref: "#/responses/default"
+        "200":
+          description: Success
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Empleo"
+    post:
+      summary: para agregar un nuevo empleo
+      description: permite subir un nuevo empleo a las empresas, requiere token de empresa. Se guarda el id de la empresa en el empleo
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - in: body
+          name: empleo
+          required: true
+          description: el empelo a ser creado
+          schema:
+            $ref: "#/definitions/Empleo"
+      responses:
+        200:
+          description: Se creo empleo
+   
+        default:
+          $ref: "#/responses/default"
+  /empleos/{id}:
+    get:
+      description: Retorna datos de un empleo en particular. No requiere token
+      parameters:
+        - in: path
+          name: id
+          description: El id de un empleo
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/Empleo"
+        default:
+          $ref: "#/responses/default"
+    put:
+      summary: Actualizar datos del empleo especificado. require token de la empresa que creo  el empleo
+      description: Actualizar datos del empleo especificado de id. Requiere token de la empresa que creo este empleo. Se verificara que coincidan
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - in: path
+          name: id
+          type: string
+          required: true
+          description: id del empleo a actualizar
+        - in: body
+          name: empleo
+          required: true
+          description: cuerpo del empleo a actualizar
+          schema:
+            $ref: "#/definitions/Empleo"
+      responses:
+        200:
+          description: OK
+        default:
+          $ref: "#/responses/default"
+  /usuarios:
+    post:
+      description: registrar un nuevo usuario. no requiere token
+      consumes: 
+        - application/x-www-form-urlencoded
+      parameters: 
+        - in: body
+          name: usuario
+          required: true
+          description: el usuario a ser creado  
+          schema: 
+            $ref: "#/definitions/CrearUsuarioModel"
+      responses:
+        200: 
+          $ref: "#/responses/RespuestaModel"
+        default:
+          $ref: "#/responses/default"
+    get:
+      description: inciar sesion, devuelve un token
+      consumes:
+        - application/x-www-form-urlencode
+      parameters:
+        - in: body
+          name: login
+          required: true
+          description: datos para iniciar sesion como usuario
+          schema:
+            type: object
+            required: 
+              - email
+              - password
+            properties:
+              email:
+                type: string
+              password:
+                type: string
+      responses:
+        200: 
+          description: Success
+          schema:
+            type: object
+            required: 
+              - token
+            properties:
+              token:
+                type: string
+              id:
+                type: string
+              email:
+                type: string
+        default:
+          $ref: "#/responses/default"
+  /usuarios/{id}:
+    put:
+      description: Modificar los datos de un usuario en particular. se requiere el token del usuario. Se verificara que id coincida con el id del token
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - in: path
+          name: id
+          type: string
+          required: true
+          description: id del usuario a actualizar
+        - in: body
+          name: usuario
+          required: true
+          description: los datos actualizados del usuario
+          schema: 
+            $ref: "#/definitions/Usuario"
+      responses:
+        200: 
+          description: Actualizacion correcta duevuelve datos actualizados
+          schema:
+            $ref: "#/definitions/Usuario"
+          
+        default:
+          $ref: "#/responses/default"
+    get:
+      description: trae datos del usuario 
+      parameters:
+        - in: path
+          name: id
+          description: el id del usuario
+          required: true
+          type: string
+      responses:
+        200:
+          description: Ok
+          schema:
+            $ref: "#/definitions/Usuario"
+        default:
+          $ref: "#/responses/default"
+          
+  /empresas:
+    post:
+      summary: para crear una nueva empresa
+      description: permite crear una empresa
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - in: body
+          name: empresa
+          required: true
+          description: datos de la empresa a ser creada
+          schema:
+            $ref: "#/definitions/CrearEmpresa"
+      responses:
+        200:
+          description: ok
+        default:
+          $ref: "#/responses/default"
+    get:
+      description: Iniciar sesion como empresa
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - in: body
+          name: login
+          required: true
+          description: datos para iniciar sesion como empresa
+          schema:
+            type: object
+            required:
+              - email
+              - password
+            properties:
+              email:
+                type: string
+              password: 
+                type: string
+      responses:
+        200: 
+          description: OK
+          schema:
+            type: object
+            required: 
+              - token
+            properties:
+              token:
+                type: string
+        default:
+          $ref: "#/responses/default"
+          
+      
+  /empresas/{id}:
+    get:
+      description: trae datos de la empresa especificada
+      parameters:
+        - in: path
+          name: id
+          description: el id de la empresa
+          required: true
+          type: string
+      responses:
+        200: 
+          description: ok
+          schema:
+            $ref: "#/definitions/Empresa"
+        default:
+          $ref: "#/responses/default"
+          
+          
+####  POSTULACION
+  /usuarios/{iduser}/empleos/{idempleo}:
+    post:
+      summary: Un usuario id postula a un empleo id. 
+      description: Requiere token del usuario que postula. Corroborar existencia empleo
+      parameters:
+        - in: path
+          name: iduser
+          type: string
+          required: true
+          description: idusuario que postula a un empleo. debe coincidir con el token
+        - in: path
+          name: idempleo
+          type: string
+          required: true
+          description: idempleo debe verificar su existencia o que no haya postulado anteriormente
+      responses:
+        200:
+          description: Postulo correctamente
+        default:
+          $ref: "#/responses/default"
+
+  /usuarios/{iduser}/empleos:
+    get:
+      summary: devuelve la lista de empleos postuladors por iduser
+      description: requiere token del user, deben coincidir en id
+      parameters:
+        - in: path
+          name: iduser
+          type: string
+          required: true
+          description: iduser debe coincidir con el token 
+      responses:
+        200:
+          description: devuelve lista
+    
+  /empresas/{idempresa}/empleos/{idempleo}:
+    get:
+      summary: devuelve la lista de postulaciones que postularon a idempleo
+      description: requiere token de empresa, corroborar que idempleo le pertenece
+      parameters:
+        - in: path
+          name: idempresa
+          type: string
+          required: true
+          description: idempresa debe coincidir con el id del token
+        - in: path
+          name: idempleo
+          type: string
+          required: true
+          description: idempleo debe pertenecer a la empresa
+      responses:
+        200:
+          description: lista de postulaciones al idempleo
+    
+  
+  
+  
+  
+  
+###   FIN  POSTULACION
+  
+  /swagger:
+    x-swagger-pipe: swagger_raw
+# complex objects have schema definitions
+definitions:
+  Empresa:
+    type: object
+    required:
+      - nombre
+      - razon social
+      - ruc
+      - rubro 
+    properties:
+      nombre:
+        type: string
+        example: Alicorp
+      razon social:
+        type: string
+        example: Sociedad Anonima
+      ruc:
+        type: number
+        example: 11565657446
+      rubro:
+        type: string
+        example: Alimentos
+  CrearEmpresa:
+    type: object
+    required:
+      - nombre
+      - ruc
+      - email
+      - password
+    properties:
+      nombre:
+        type: string
+      ruc:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+
+  Usuario:
+    type: object
+    required: 
+      - nombres
+      - apellidos
+      - nacimiento
+      - sexo
+      - dni
+    properties:
+      nombres:
+        type: string
+        example: Gustavo Gil
+      apellidos:
+        type: string
+        example: Condezo Camayo
+      nacimiento: 
+        type: string
+        example: 17/02/1997
+      sexo:
+        type: string
+        example: masculino
+      dni:
+        type: number
+        example: 764611445
+  Empleo:
+    type: object
+    required:
+      - titulo
+      - descripcion
+    properties:
+      titulo:
+        type: string
+        example: Practicante Front End
+      descripcion:
+        type: string
+        example: Nuestra empresa busca el mejor talento un pranticnte
+  CrearUsuarioModel:
+    type: object
+    required:
+      - nombres
+      - apellidos
+      - telefono
+      - email
+      - password
+    properties:
+      nombres:
+        type: string
+      apellidos:
+        type: string
+      telefono:
+        type: number
+      email: 
+        type: string
+      password:
+        type: string
+  ErrorResponse:
+    required:
+      - mensaje
+    properties:
+      mensaje:
+        type: string
+  RespuestaModel:
+    required:
+        - mensaje
+        - data
+        - status
+    properties:
+      mensaje:
+        type: string
+      status:
+        type: number
+      data:
+        type: object

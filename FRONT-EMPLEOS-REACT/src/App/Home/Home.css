@@ -1,0 +1,22 @@
+.presentacion{
+    background-image: url("https://cdn.krowdy.com/portales/1576268581160-opcion_new.jpg");
+    color: white;
+    min-height: 350px;
+    text-align: center;
+}
+.buscar{
+    background-color: white;
+}
+.footerHome{
+    background-color:whitesmoke
+}
+.bloqueRedes{
+    height: 100%;
+}
+.Card{
+    width: 100%;
+    margin-left: 10px;
+}
+img{
+    width: 100%;
+}
